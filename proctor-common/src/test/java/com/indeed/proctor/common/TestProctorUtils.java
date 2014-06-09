@@ -997,7 +997,7 @@ public class TestProctorUtils {
 
     private Audit constructAudit() {
         final Audit audit = new Audit();
-        audit.setVersion(1);
+        audit.setVersion("1");
         audit.setUpdatedBy("unit test");
         audit.setUpdated(1337133701337L);
         return audit;

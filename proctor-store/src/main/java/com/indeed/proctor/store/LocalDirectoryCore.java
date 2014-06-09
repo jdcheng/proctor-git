@@ -103,7 +103,7 @@ public class LocalDirectoryCore implements FileBasedPersisterCore {
             tests,
             new Date(System.currentTimeMillis()),
             System.getenv("USER"),
-            System.currentTimeMillis(),
+            String.valueOf(System.currentTimeMillis()),
             ""
         );
 

@@ -65,7 +65,7 @@ public class Proctor {
         final Audit audit = new Audit();
         audit.setUpdated(0);
         audit.setUpdatedBy("nobody");
-        audit.setVersion(-1);
+        audit.setVersion(Audit.EMPTY_VERSION);
 
         final TestMatrixArtifact testMatrix = new TestMatrixArtifact();
         testMatrix.setAudit(audit);

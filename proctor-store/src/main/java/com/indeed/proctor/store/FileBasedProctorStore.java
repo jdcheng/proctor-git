@@ -265,10 +265,10 @@ public abstract class FileBasedProctorStore implements ProctorStore {
         private List<TestVersionResult.Test> tests;
         private Date published;
         private String author;
-        private long version;
+        private String version;
         private String description;
 
-        TestVersionResult(List<TestVersionResult.Test> tests, Date published, String author, long version, String description) {
+        TestVersionResult(List<TestVersionResult.Test> tests, Date published, String author, String version, String description) {
             this.tests = tests;
             this.published = published;
             this.author = author;
@@ -306,7 +306,7 @@ public abstract class FileBasedProctorStore implements ProctorStore {
             return author;
         }
 
-        public long getVersion() {
+        public String getVersion() {
             return version;
         }
 

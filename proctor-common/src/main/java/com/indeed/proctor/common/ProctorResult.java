@@ -1,5 +1,6 @@
 package com.indeed.proctor.common;
 
+import com.indeed.proctor.common.model.Audit;
 import com.indeed.proctor.common.model.ConsumableTestDefinition;
 import com.indeed.proctor.common.model.TestBucket;
 
@@ -17,16 +18,16 @@ import javax.annotation.Nonnull;
  *
  */
 public class ProctorResult {
-    public static final ProctorResult EMPTY = new ProctorResult(-1, Collections.<String, TestBucket>emptyMap(), Collections.<String, ConsumableTestDefinition>emptyMap());
+    public static final ProctorResult EMPTY = new ProctorResult(Audit.EMPTY_VERSION, Collections.<String, TestBucket>emptyMap(), Collections.<String, ConsumableTestDefinition>emptyMap());
 
-    private final long matrixVersion;
+    private final String matrixVersion;
     @Nonnull
     private final Map<String, TestBucket> buckets;
     @Nonnull
     private final Map<String, ConsumableTestDefinition> testDefinitions;
 
     public ProctorResult(
-            final long matrixVersion,
+            final String matrixVersion,
             @Nonnull final Map<String, TestBucket> buckets,
             @Nonnull final Map<String, ConsumableTestDefinition> testDefinitions
     ) {
@@ -37,7 +38,7 @@ public class ProctorResult {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public long getMatrixVersion() {
+    public String getMatrixVersion() {
         return matrixVersion;
     }
 

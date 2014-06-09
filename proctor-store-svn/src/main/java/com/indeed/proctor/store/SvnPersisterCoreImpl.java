@@ -141,7 +141,6 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
 
 
             final SVNDirEntry logEntry = handler.getParent();
-            final long revision = logEntry.getRevision();
 
             final List<FileBasedProctorStore.TestVersionResult.Test> tests = Lists.newArrayListWithExpectedSize(handler.getChildren().size());
             for (final SVNDirEntry testDefFile : handler.getChildren()) {
@@ -173,6 +172,7 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
                 tests.add(new FileBasedProctorStore.TestVersionResult.Test(testName, testRevision));
             }
 
+            final String revision = String.valueOf(logEntry.getRevision());
             return new FileBasedProctorStore.TestVersionResult(
                 tests,
                 logEntry.getDate(),

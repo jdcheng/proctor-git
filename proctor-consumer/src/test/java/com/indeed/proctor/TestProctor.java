@@ -82,7 +82,7 @@ public class TestProctor {
         final Audit audit = new Audit();
         audit.setUpdated(0);
         audit.setUpdatedBy("nobody");
-        audit.setVersion(-1);
+        audit.setVersion(Audit.EMPTY_VERSION);
 
         matrix.setAudit(audit);
 
