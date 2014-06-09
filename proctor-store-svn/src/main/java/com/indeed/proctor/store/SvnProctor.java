@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class SvnProctor extends FileBasedProctorStore {
+public class SvnProctor extends FileBasedProctorStore<Long> {
     private static final Logger LOGGER = Logger.getLogger(SvnProctor.class);
 
     /* Storage Schema:
@@ -52,7 +52,7 @@ public class SvnProctor extends FileBasedProctorStore {
     }
 
     @Override
-    public List<Revision> getHistory(final String test, final int start, final int limit) throws StoreException {
+    public List<Revision<Long>> getHistory(final String test, final int start, final int limit) throws StoreException {
         try {
             final long latestRevision = repo.getLatestRevision();
             return getHistory(test, latestRevision, start, limit);
@@ -62,7 +62,7 @@ public class SvnProctor extends FileBasedProctorStore {
     }
 
     @Override
-    public List<Revision> getHistory(String test, long revision, final int start, int limit) throws StoreException {
+    public List<Revision<Long>> getHistory(String test, Long revision, final int start, int limit) throws StoreException {
         try {
             // check path before executing svn log
             final String testPath = TEST_DEFINITIONS_DIRECTORY + "/" + test;
@@ -82,7 +82,7 @@ public class SvnProctor extends FileBasedProctorStore {
     }
 
     @Override
-    public long getLatestVersion() throws StoreException {
+    public Long getLatestVersion() throws StoreException {
         try {
             final String[] targetPaths = { };
             final SVNRevision svnRevision = SVNRevision.HEAD;
@@ -107,12 +107,12 @@ public class SvnProctor extends FileBasedProctorStore {
     }
 
     @Override
-    public List<Revision> getMatrixHistory(final int start, final int limit) throws StoreException {
+    public List<Revision<Long>> getMatrixHistory(final int start, final int limit) throws StoreException {
         final String[] targetPaths = { };
         return getSVNLogs(targetPaths, SVNRevision.HEAD, start, limit);
     }
 
-    private List<Revision> getSVNLogs(final String[] paths, final SVNRevision startRevision, final int start, final int limit) throws StoreException.ReadException {
+    private List<Revision<Long>> getSVNLogs(final String[] paths, final SVNRevision startRevision, final int start, final int limit) throws StoreException.ReadException {
         try {
             final SVNLogClient logClient = clientManager.getLogClient();
             final FilterableSVNLogEntryHandler handler = new FilterableSVNLogEntryHandler();
@@ -125,7 +125,7 @@ public class SvnProctor extends FileBasedProctorStore {
 
             final List<SVNLogEntry> entries = handler.getLogEntries();
 
-            final List<Revision> revisions;
+            final List<Revision<Long>> revisions;
             if (entries.size() <= start) {
                 revisions = Collections.emptyList();
             } else {
@@ -185,14 +185,15 @@ public class SvnProctor extends FileBasedProctorStore {
 
             System.out.println("Running load matrix for last " + num_revisions + " revisions");
             final long start = System.currentTimeMillis();
-            final List<Revision> revisions = client.getMatrixHistory(0, num_revisions);
-            for(final Revision rev : revisions) {
+            final List<Revision<Long>> revisions = client.getMatrixHistory(0, num_revisions);
+            for(final Revision<Long> rev : revisions) {
                 final TestMatrixVersion matrix = client.getTestMatrix(rev.getRevision());
             }
             final long elapsed = System.currentTimeMillis() - start;
             System.out.println("Finished reading matrix history (" + revisions.size() + ") in " + elapsed + " ms");
             client.close();
         } catch (StoreException e) {
+            e.printStackTrace(System.err);
             LOGGER.error(e);
         } finally {
             System.out.println("Deleting temp dir : " + tempDir);

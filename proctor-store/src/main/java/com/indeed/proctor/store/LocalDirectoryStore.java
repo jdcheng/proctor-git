@@ -3,7 +3,7 @@ package com.indeed.proctor.store;
 import java.io.File;
 import java.util.List;
 
-public class LocalDirectoryStore extends FileBasedProctorStore {
+public class LocalDirectoryStore extends FileBasedProctorStore<String> {
 
     final File baseDir;
 
@@ -16,8 +16,8 @@ public class LocalDirectoryStore extends FileBasedProctorStore {
     }
 
     @Override
-    public long getLatestVersion() throws StoreException {
-        return -1;
+    public String getLatestVersion() throws StoreException {
+        return "";
     }
 
     @Override
@@ -27,16 +27,16 @@ public class LocalDirectoryStore extends FileBasedProctorStore {
     }
 
     @Override
-    public List<Revision> getHistory(final String test, final int ignoredStart, final int limit) throws StoreException {
+    public List<Revision<String>> getHistory(final String test, final int ignoredStart, final int limit) throws StoreException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public List<Revision> getHistory(String test, long revision, int start, int limit) throws StoreException {
+    public List<Revision<String>> getHistory(String test, String revision, int start, int limit) throws StoreException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
     @Override
-    public List<Revision> getMatrixHistory(final int start, final int limit) throws StoreException {
+    public List<Revision<String>> getMatrixHistory(final int start, final int limit) throws StoreException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

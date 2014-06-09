@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @author parker
  */
-public interface ProctorReader {
+public interface ProctorReader<RevisionType> {
     TestMatrixVersion getCurrentTestMatrix() throws StoreException;
 
     TestDefinition getCurrentTestDefinition(String test) throws StoreException;
@@ -17,15 +17,15 @@ public interface ProctorReader {
 
     /***** Versioned ProctorReader *****/
 
-    long getLatestVersion() throws StoreException;
+    RevisionType getLatestVersion() throws StoreException;
 
-    TestMatrixVersion getTestMatrix(long fetchRevision) throws StoreException;
+    TestMatrixVersion getTestMatrix(RevisionType fetchRevision) throws StoreException;
 
-    TestDefinition getTestDefinition(String test, long fetchRevision) throws StoreException;
+    TestDefinition getTestDefinition(String test, RevisionType fetchRevision) throws StoreException;
 
-    List<Revision> getMatrixHistory(int start, int limit) throws StoreException;
+    List<Revision<RevisionType>> getMatrixHistory(int start, int limit) throws StoreException;
 
-    List<Revision> getHistory(String test, int start, int limit) throws StoreException;
+    List<Revision<RevisionType>> getHistory(String test, int start, int limit) throws StoreException;
 
-    List<Revision> getHistory(String test, long revision, int start, int limit) throws StoreException;
+    List<Revision<RevisionType>> getHistory(String test, RevisionType revision, int start, int limit) throws StoreException;
 }

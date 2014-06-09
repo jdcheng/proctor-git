@@ -115,7 +115,7 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
     }
 
     @Override
-    public FileBasedProctorStore.TestVersionResult determineVersions(final long fetchRevision) throws StoreException.ReadException {
+    public TestVersionResult determineVersions(final Long fetchRevision) throws StoreException.ReadException {
         checkShutdownState();
         try {
             final String testDefPath = FileBasedProctorStore.TEST_DEFINITIONS_DIRECTORY;
@@ -142,7 +142,7 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
 
             final SVNDirEntry logEntry = handler.getParent();
 
-            final List<FileBasedProctorStore.TestVersionResult.Test> tests = Lists.newArrayListWithExpectedSize(handler.getChildren().size());
+            final List<TestVersionResult.Test> tests = Lists.newArrayListWithExpectedSize(handler.getChildren().size());
             for (final SVNDirEntry testDefFile : handler.getChildren()) {
                 if (testDefFile.getKind() != SVNNodeKind.DIR) {
                     LOGGER.warn(String.format("svn kind (%s) is not SVNNodeKind.DIR, skipping %s", testDefFile.getKind(), testDefFile.getURL()));
@@ -169,11 +169,11 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
                     testRevision = testDefFile.getRevision();
                 }
 
-                tests.add(new FileBasedProctorStore.TestVersionResult.Test(testName, testRevision));
+                tests.add(new TestVersionResult.Test(testName, testRevision));
             }
 
             final String revision = String.valueOf(logEntry.getRevision());
-            return new FileBasedProctorStore.TestVersionResult(
+            return new TestVersionResult(
                 tests,
                 logEntry.getDate(),
                 logEntry.getAuthor(),
@@ -223,7 +223,7 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
 
 
     @Override
-    public <C> C getFileContents(final Class<C> c, final String[] path_parts, final C defaultValue, final long revision) throws StoreException.ReadException, JsonProcessingException {
+    public <C> C getFileContents(final Class<C> c, final String[] path_parts, final C defaultValue, final Long revision) throws StoreException.ReadException, JsonProcessingException {
         checkShutdownState();
         final String path = Joiner.on("/").join(path_parts);
         try {
@@ -273,7 +273,7 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
     public void doInWorkingDirectory(final String username,
                                      final String password,
                                      final String comment,
-                                     final long previousVersion,
+                                     final Long previousVersion,
                                      final FileBasedProctorStore.ProctorUpdater updater) throws StoreException.TestUpdateException {
         checkShutdownState();
 
@@ -310,6 +310,11 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
             LOGGER.error("Exception during copy from (svn base) " + templateSvnDir + " to (" + username + ") " + userDirectory, e);
         }
         return userDirectory;
+    }
+
+    @Override
+    public Long getAddTestRevision() {
+        return Long.valueOf(0);
     }
 
     /**
