@@ -41,7 +41,7 @@ public class Proctor {
         final ExpressionFactory expressionFactory = RuleEvaluator.EXPRESSION_FACTORY;
 
         final Map<String, TestChooser<?>> testChoosers = Maps.newLinkedHashMap();
-        final Map<String, Integer> versions = Maps.newLinkedHashMap();
+        final Map<String, String> versions = Maps.newLinkedHashMap();
 
         for (final Entry<String, ConsumableTestDefinition> entry : matrix.getTests().entrySet()) {
             final String testName = entry.getKey();

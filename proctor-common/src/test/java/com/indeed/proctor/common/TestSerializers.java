@@ -73,7 +73,7 @@ public class TestSerializers {
         Assert.assertNotNull("Input stream for " + resourceName + " should not be null", input);
         try {
             final TestDefinition definition = mapper.readValue(input, TestDefinition.class);
-            Assert.assertEquals(1, definition.getVersion());
+            Assert.assertEquals("1", definition.getVersion());
             Assert.assertEquals(TestType.ANONYMOUS_USER, definition.getTestType());
             Assert.assertEquals("exampletst", definition.getSalt());
             Assert.assertEquals("loggedIn", definition.getRule());

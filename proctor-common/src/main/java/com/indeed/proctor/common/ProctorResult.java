@@ -53,9 +53,9 @@ public class ProctorResult {
     }
 
     @Nonnull
-    public Map<String, Integer> getTestVersions() {
+    public Map<String, String> getTestVersions() {
         // TODO ImmutableMap?
-        final Map<String, Integer> testVersions = Maps.newHashMap();
+        final Map<String, String> testVersions = Maps.newHashMap();
         for (final Entry<String, ConsumableTestDefinition> entry : testDefinitions.entrySet()) {
             testVersions.put(entry.getKey(), entry.getValue().getVersion());
         }
