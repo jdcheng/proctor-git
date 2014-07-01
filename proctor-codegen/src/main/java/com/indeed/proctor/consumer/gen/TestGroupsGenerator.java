@@ -8,6 +8,7 @@ import com.indeed.proctor.common.PayloadType;
 import com.indeed.proctor.common.ProctorSpecification;
 import com.indeed.proctor.common.ProctorUtils;
 import com.indeed.proctor.common.TestSpecification;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -56,6 +57,7 @@ public class TestGroupsGenerator extends FreeMarkerCodeGenerator {
 
             final TestSpecification testSpecification = tests.get(testName);
             final Entry<String, Integer>[] sortedBuckets = testSpecification.getBuckets().entrySet().toArray(new Map.Entry[testSpecification.getBuckets().size()]);
+
             Arrays.sort(sortedBuckets, new Comparator<Entry<String, Integer>>() {
                 public int compare(final Entry<String, Integer> e0, final Entry<String, Integer> e1) {
                     if(e0.getValue().intValue() < e1.getValue().intValue()) {
@@ -107,6 +109,13 @@ public class TestGroupsGenerator extends FreeMarkerCodeGenerator {
                 testDef.put("payloadJavaClass", specifiedPayloadType.javaClassName);
                 testDef.put("payloadAccessorName", specifiedPayloadType.javaAccessorName);
             }
+
+            
+            if (testSpecification.getDescription() != null) {
+                testDef.put("description", StringEscapeUtils.escapeJava(testSpecification.getDescription()));
+            }
+
+
 
             testDefs.add(testDef);
         }
