@@ -7,7 +7,7 @@ import java.io.Closeable;
 /**
  * @author parker
  */
-interface FileBasedPersisterCore extends Closeable {
+public interface FileBasedPersisterCore extends Closeable {
     /**
      * Parses a JSON class from a specified path relative to the root of the base directory.
      *
