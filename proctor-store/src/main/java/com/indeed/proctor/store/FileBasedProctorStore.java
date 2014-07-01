@@ -250,11 +250,11 @@ public abstract class FileBasedProctorStore implements ProctorStore {
         });
     }
 
-    interface ProctorUpdater {
+    public interface ProctorUpdater {
         boolean doInWorkingDirectory(FileBasedProctorStore.RcsClient rcsClient, File workingDir) throws Exception;
     }
 
-    interface RcsClient {
+    public interface RcsClient {
         void add(File file) throws Exception;
 
         void delete(File testDefinitionDirectory) throws Exception;
