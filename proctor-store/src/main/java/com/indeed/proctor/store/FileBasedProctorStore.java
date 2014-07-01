@@ -105,7 +105,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
             final TestDefinition testDefinition = getTestDefinition(testDefFile.getTestName(), testDefFile.getRevision());
             if(LOGGER.isTraceEnabled()) {
                 final long elapsed = System.currentTimeMillis() - startForTest;
-                LOGGER.debug(String.format("Took %d ms to load %s (r%d) %s", elapsed, testDefFile.getTestName(), testDefFile.getRevision(), testDefinition == null ? "unsuccessfully" : "successfully"));
+                LOGGER.debug(String.format("Took %d ms to load %s (r%s) %s", elapsed, testDefFile.getTestName(), testDefFile.getRevision(), testDefinition == null ? "unsuccessfully" : "successfully"));
             }
             if(testDefinition == null) {
                 LOGGER.info("Returning null TestMatrix because " + testDefFile.getTestName() + " returned null test-definition.");
@@ -149,10 +149,10 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
         try {
             return getFileContents(TestDefinition.class, new String[] { TEST_DEFINITIONS_DIRECTORY, testName, TEST_DEFINITION_FILENAME }, null, fetchRevision);
         } catch (final JsonProcessingException e) {
-            LOGGER.error(String.format("Unable to deserialize JSON for %s r%d", testName, fetchRevision), e);
+            LOGGER.error(String.format("Unable to deserialize JSON for %s r%s", testName, fetchRevision), e);
             return null;
         } catch (final StoreException.ReadException e) {
-            LOGGER.error(String.format("Unable to read test %s for r%d", testName, fetchRevision), e);
+            LOGGER.error(String.format("Unable to read test %s for r%s", testName, fetchRevision), e);
             return null;
         }
     }
@@ -185,7 +185,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
 
     @Override
     public final void updateTestDefinition(final String username, final String password, final RevisionType previousVersion, final String testName, final TestDefinition testDefinition, final Map<String, String> metadata, final String comment) throws StoreException.TestUpdateException {
-        LOGGER.info(String.format("Update Test Definition: %s %s r%d", username, testName, previousVersion));
+        LOGGER.info(String.format("Update Test Definition: %s %s r%s", username, testName, previousVersion));
         core.doInWorkingDirectory(username, password, comment, previousVersion, new ProctorUpdater() {
             @Override
             public boolean doInWorkingDirectory(final RcsClient rcsClient, final File workingDir) throws Exception {
@@ -234,7 +234,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
     @Override
     public final void deleteTestDefinition(final String username, final String password, final RevisionType previousVersion, final String testName, final TestDefinition testDefinition, final String comment)
             throws StoreException.TestUpdateException {
-        LOGGER.info(String.format("Delete Test Definition: %s %s r%d ", username, testName, previousVersion));
+        LOGGER.info(String.format("Delete Test Definition: %s %s r%s ", username, testName, previousVersion));
         core.doInWorkingDirectory(username, password, comment, previousVersion, new ProctorUpdater() {
             @Override
             public boolean doInWorkingDirectory(final RcsClient rcsClient, final File workingDir) throws Exception {
