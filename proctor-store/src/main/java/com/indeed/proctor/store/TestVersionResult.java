@@ -23,7 +23,7 @@ public class TestVersionResult {
         final String testName;
         final String revision;
 
-        Test(String testName, String revision) {
+        public Test(String testName, String revision) {
             this.testName = testName;
             this.revision = revision;
         }
