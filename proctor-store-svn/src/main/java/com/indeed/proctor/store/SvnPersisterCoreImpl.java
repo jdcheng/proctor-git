@@ -115,7 +115,7 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
     }
 
     @Override
-    public TestVersionResult determineVersions(final Long fetchRevision) throws StoreException.ReadException {
+    public TestVersionResult determineVersions(final String fetchRevision) throws StoreException.ReadException {
         checkShutdownState();
         try {
             final String testDefPath = FileBasedProctorStore.TEST_DEFINITIONS_DIRECTORY;
@@ -126,8 +126,8 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
                 return null;
             }
             */
-
-            final SVNRevision svnRevision = fetchRevision > 0 ? SVNRevision.create(fetchRevision) : SVNRevision.HEAD;
+            final Long revision = fetchRevision.length() > 0 ? parseRevisionOrDie(fetchRevision) : Long.valueOf(-1);
+            final SVNRevision svnRevision = revision.longValue() > 0 ? SVNRevision.create(revision.longValue()) : SVNRevision.HEAD;
             final SVNLogClient logClient = clientManager.getLogClient();
             final FilterableSVNDirEntryHandler handler = new FilterableSVNDirEntryHandler();
             final SVNURL url = this.svnUrl.appendPath(testDefPath, false);
@@ -169,21 +169,20 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
                     testRevision = testDefFile.getRevision();
                 }
 
-                tests.add(new TestVersionResult.Test(testName, testRevision));
+                tests.add(new TestVersionResult.Test(testName, String.valueOf(testRevision)));
             }
 
-            final String revision = String.valueOf(logEntry.getRevision());
+            final String matrixRevision = String.valueOf(logEntry.getRevision());
             return new TestVersionResult(
                 tests,
                 logEntry.getDate(),
                 logEntry.getAuthor(),
-                revision,
+                matrixRevision,
                 logEntry.getCommitMessage()
             );
 
         } catch (final SVNException e) {
-            LOGGER.error("Unable to read from SVN", e);
-            return null;
+            throw new StoreException.ReadException("Unable to read from SVN", e);
         }
     }
 
@@ -223,9 +222,10 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
 
 
     @Override
-    public <C> C getFileContents(final Class<C> c, final String[] path_parts, final C defaultValue, final Long revision) throws StoreException.ReadException, JsonProcessingException {
+    public <C> C getFileContents(final Class<C> c, final String[] path_parts, final C defaultValue, final String version) throws StoreException.ReadException, JsonProcessingException {
         checkShutdownState();
         final String path = Joiner.on("/").join(path_parts);
+        final Long revision = parseRevisionOrDie(version);
         try {
             // use raw repo to check if the path exists
             final SVNNodeKind nodeType = repo.checkPath(path, revision);
@@ -273,7 +273,7 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
     public void doInWorkingDirectory(final String username,
                                      final String password,
                                      final String comment,
-                                     final Long previousVersion,
+                                     final String previousVersion,
                                      final FileBasedProctorStore.ProctorUpdater updater) throws StoreException.TestUpdateException {
         checkShutdownState();
 
@@ -313,8 +313,8 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
     }
 
     @Override
-    public Long getAddTestRevision() {
-        return Long.valueOf(0);
+    public String getAddTestRevision() {
+        return Long.valueOf(0).toString();
     }
 
     /**
@@ -376,6 +376,19 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
             throw new RuntimeException("SvnPersisterCore is shutdown");
         }
     }
+
+    static Long parseRevisionOrDie(final String revision) throws StoreException.ReadException {
+        try {
+            final Long rev = Long.parseLong(revision);
+            if (rev.longValue() < 0) {
+                throw new StoreException.ReadException("Invalid SVN revision " + revision);
+            }
+            return rev;
+        } catch (NumberFormatException e) {
+            throw new StoreException.ReadException("Invalid SVN revision " + revision);
+        }
+    }
+
 
     @Override
     public SVNRepository getRepo() {

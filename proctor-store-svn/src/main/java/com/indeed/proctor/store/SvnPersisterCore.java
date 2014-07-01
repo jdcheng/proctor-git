@@ -8,7 +8,7 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 /**
  * @author parker
  */
-public interface SvnPersisterCore extends FileBasedPersisterCore<Long> {
+public interface SvnPersisterCore extends FileBasedPersisterCore {
     SVNRepository getRepo();
 
     SVNClientManager getClientManager();

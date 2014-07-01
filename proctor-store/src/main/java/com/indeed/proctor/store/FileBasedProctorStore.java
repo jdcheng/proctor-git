@@ -22,7 +22,7 @@ import java.util.Map;
  * @author ketan
  * @author parker
  */
-public abstract class FileBasedProctorStore<RevisionType> implements ProctorStore<RevisionType> {
+public abstract class FileBasedProctorStore implements ProctorStore {
     private static final Logger LOGGER = Logger.getLogger(FileBasedProctorStore.class);
     private static final String SUFFIX = ".json";
     static final String TEST_DEFINITIONS_DIRECTORY = "test-definitions";
@@ -30,9 +30,9 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
     static final String TEST_DEFINITION_FILENAME = "definition" + SUFFIX;
     final ObjectMapper objectMapper = Serializers.strict();
 
-    protected final FileBasedPersisterCore<RevisionType> core;
+    protected final FileBasedPersisterCore core;
 
-    protected FileBasedProctorStore(FileBasedPersisterCore<RevisionType> core) {
+    protected FileBasedProctorStore(FileBasedPersisterCore core) {
         this.core = core;
     }
 
@@ -85,9 +85,9 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
     }
 
     @Override
-    public final TestMatrixVersion getTestMatrix(final RevisionType fetchRevision) throws StoreException {
+    public final TestMatrixVersion getTestMatrix(final String fetchRevision) throws StoreException {
         long start = System.currentTimeMillis();
-        final TestVersionResult<RevisionType> result = core.determineVersions(fetchRevision);
+        final TestVersionResult result = core.determineVersions(fetchRevision);
         if(LOGGER.isDebugEnabled()) {
             final long elapsed = System.currentTimeMillis() - start;
             LOGGER.debug(String.format("Took %d ms to identify %d potential tests", elapsed, result.getTests().size()));
@@ -100,7 +100,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
 
         final Map<String, TestDefinition> testDefinitions = Maps.newLinkedHashMap();
         start = System.currentTimeMillis();
-        for (final TestVersionResult.Test<RevisionType> testDefFile : result.getTests()) {
+        for (final TestVersionResult.Test testDefFile : result.getTests()) {
             final long startForTest = System.currentTimeMillis();
             final TestDefinition testDefinition = getTestDefinition(testDefFile.getTestName(), testDefFile.getRevision());
             if(LOGGER.isTraceEnabled()) {
@@ -134,9 +134,9 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
     @Override
     public TestDefinition getCurrentTestDefinition(final String testName) throws StoreException {
         // Get the first test history
-        final List<Revision<RevisionType>> tdvList = this.getHistory(testName, 0, 1);
+        final List<Revision> tdvList = this.getHistory(testName, 0, 1);
         if(tdvList.size() == 1) {
-            final Revision<RevisionType> tdv = tdvList.get(0);
+            final Revision tdv = tdvList.get(0);
             return getTestDefinition(testName, tdv.getRevision());
         } else {
             LOGGER.info("Not history returned for " + testName + ", returning null");
@@ -145,7 +145,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
     }
 
     @Override
-    public TestDefinition getTestDefinition(final String testName, RevisionType fetchRevision) throws StoreException {
+    public TestDefinition getTestDefinition(final String testName, String fetchRevision) throws StoreException {
         try {
             return getFileContents(TestDefinition.class, new String[] { TEST_DEFINITIONS_DIRECTORY, testName, TEST_DEFINITION_FILENAME }, null, fetchRevision);
         } catch (final JsonProcessingException e) {
@@ -170,7 +170,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
         core.close();
     }
 
-    private final <C> C getFileContents(Class<C> c, String[] path, C defaultValue, RevisionType revision) throws StoreException.ReadException, JsonProcessingException {
+    private final <C> C getFileContents(Class<C> c, String[] path, C defaultValue, String revision) throws StoreException.ReadException, JsonProcessingException {
         return core.getFileContents(c, path, defaultValue, revision);
     }
 
@@ -184,7 +184,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
     }
 
     @Override
-    public final void updateTestDefinition(final String username, final String password, final RevisionType previousVersion, final String testName, final TestDefinition testDefinition, final Map<String, String> metadata, final String comment) throws StoreException.TestUpdateException {
+    public final void updateTestDefinition(final String username, final String password, final String previousVersion, final String testName, final TestDefinition testDefinition, final Map<String, String> metadata, final String comment) throws StoreException.TestUpdateException {
         LOGGER.info(String.format("Update Test Definition: %s %s r%s", username, testName, previousVersion));
         core.doInWorkingDirectory(username, password, comment, previousVersion, new ProctorUpdater() {
             @Override
@@ -232,7 +232,7 @@ public abstract class FileBasedProctorStore<RevisionType> implements ProctorStor
     }
 
     @Override
-    public final void deleteTestDefinition(final String username, final String password, final RevisionType previousVersion, final String testName, final TestDefinition testDefinition, final String comment)
+    public final void deleteTestDefinition(final String username, final String password, final String previousVersion, final String testName, final TestDefinition testDefinition, final String comment)
             throws StoreException.TestUpdateException {
         LOGGER.info(String.format("Delete Test Definition: %s %s r%s ", username, testName, previousVersion));
         core.doInWorkingDirectory(username, password, comment, previousVersion, new ProctorUpdater() {

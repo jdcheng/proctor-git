@@ -4,14 +4,14 @@ import java.util.Date;
 import java.util.List;
 
 /** @author parker */
-class TestVersionResult<RevisionType> {
-    private List<Test<RevisionType>> tests;
+class TestVersionResult {
+    private List<Test> tests;
     private Date published;
     private String author;
     private String version;
     private String description;
 
-    TestVersionResult(List<Test<RevisionType>> tests, Date published, String author, String version, String description) {
+    TestVersionResult(List<Test> tests, Date published, String author, String version, String description) {
         this.tests = tests;
         this.published = published;
         this.author = author;
@@ -19,11 +19,11 @@ class TestVersionResult<RevisionType> {
         this.description = description;
     }
 
-    static class Test<RevisionType> {
+    static class Test {
         final String testName;
-        final RevisionType revision;
+        final String revision;
 
-        Test(String testName, RevisionType revision) {
+        Test(String testName, String revision) {
             this.testName = testName;
             this.revision = revision;
         }
@@ -32,12 +32,12 @@ class TestVersionResult<RevisionType> {
             return testName;
         }
 
-        public RevisionType getRevision() {
+        public String getRevision() {
             return revision;
         }
     }
 
-    public List<Test<RevisionType>> getTests() {
+    public List<Test> getTests() {
         return tests;
     }
 

@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author parker
  */
-public class LocalDirectoryCore implements FileBasedPersisterCore<String> {
+public class LocalDirectoryCore implements FileBasedPersisterCore {
     private static final Logger LOGGER = Logger.getLogger(LocalDirectoryCore.class);
     final ObjectMapper objectMapper = Serializers.strict();
 
@@ -96,7 +96,7 @@ public class LocalDirectoryCore implements FileBasedPersisterCore<String> {
         final List<TestVersionResult.Test> tests = Lists.newArrayListWithExpectedSize(testDefFiles.length);
         for (final File testDefFile : testDefFiles) {
             final String testName = testDefFile.getName();
-            tests.add(new TestVersionResult.Test<String>(testName, fetchRevision));
+            tests.add(new TestVersionResult.Test(testName, fetchRevision));
         }
 
         return new TestVersionResult(
