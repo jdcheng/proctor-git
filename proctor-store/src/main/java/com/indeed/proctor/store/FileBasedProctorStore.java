@@ -149,11 +149,9 @@ public abstract class FileBasedProctorStore implements ProctorStore {
         try {
             return getFileContents(TestDefinition.class, new String[] { TEST_DEFINITIONS_DIRECTORY, testName, TEST_DEFINITION_FILENAME }, null, fetchRevision);
         } catch (final JsonProcessingException e) {
-            LOGGER.error(String.format("Unable to deserialize JSON for %s r%s", testName, fetchRevision), e);
-            return null;
+            throw new StoreException(String.format("Unable to deserialize JSON for %s r%s", testName, fetchRevision), e);
         } catch (final StoreException.ReadException e) {
-            LOGGER.error(String.format("Unable to read test %s for r%s", testName, fetchRevision), e);
-            return null;
+            throw e;
         }
     }
 
