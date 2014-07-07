@@ -187,17 +187,10 @@ public class GitProctorCore implements FileBasedPersisterCore {
 
         @Override
         public void delete(File testDefinitionDirectory) throws Exception {
-            /*
             for (File file : testDefinitionDirectory.listFiles()) {
-                System.out.println("FILENAME: " + "test-definitions/" + testDefinitionDirectory.getName()
-                        + "/" + file.getName());
                 git.rm().addFilepattern("test-definitions/" + testDefinitionDirectory.getName()
-                        + "/" + file.getName());
+                        + "/" + file.getName()).call();
             }
-            */
-            FileUtils.deleteDirectory(testDefinitionDirectory);
-
-            // TODO git rm the deleted files
         }
     }
 
@@ -221,11 +214,8 @@ public class GitProctorCore implements FileBasedPersisterCore {
             final boolean thingsChanged = updater.doInWorkingDirectory(rcsClient, tempDir);
 
             if (thingsChanged) {
-                System.out.println("things changed! now on to committing and pushing all files"); //TODO
-                //rcsClient.add(null);
                 git.commit().setMessage(comment).call();
                 git.push().setCredentialsProvider(user).call();
-
             }
         } catch (Exception e) {
             System.out.println("error while messing with rcsClient " + e);
