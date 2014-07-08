@@ -69,12 +69,12 @@ public class GitProctorCore implements FileBasedPersisterCore {
                     .setProgressMonitor(new TextProgressMonitor())
                     .setCredentialsProvider(user)
                     .call();
-
+/*
             git.fetch()
                     .setProgressMonitor(new TextProgressMonitor())
                     .setCredentialsProvider(user)
                     .call();
-
+*/
             // now open the created repository
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
             repo = builder.setGitDir(new File(localPath, ".git"))
@@ -85,44 +85,6 @@ public class GitProctorCore implements FileBasedPersisterCore {
             System.out.println("error while cloning/opening repo");
             e.printStackTrace();
         }
-
-        try {
-            System.out.println(git.branchList().call());
-            for (Ref ref : git.branchList().call()) {
-                System.out.println(ref.getName());
-            }
-
-            /***********
-             * try and read a file from github
-             ***********/
-            // find the HEAD
-            ObjectId lastCommitId = repo.resolve(Constants.HEAD);
-            // a RevWalk allows to walk over commits based on some filtering that is defined
-            RevWalk revWalk = new RevWalk(repo);
-            RevCommit commit = revWalk.parseCommit(lastCommitId);
-            // and using commit's tree find the path
-            RevTree tree = commit.getTree();
-
-            // now try to find a specific file
-            TreeWalk treeWalk = new TreeWalk(repo);
-            treeWalk.addTree(tree);
-            treeWalk.setRecursive(true);
-            treeWalk.setFilter(PathFilter.create("README.md"));
-            if (!treeWalk.next()) {
-                throw new IllegalStateException("Did not find expected file 'README.md'");
-            }
-
-            ObjectId objectId = treeWalk.getObjectId(0);
-            ObjectLoader loader = repo.open(objectId);
-
-            // and then one can the loader to read the file
-            loader.copyTo(System.out);
-
-            repo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override

@@ -4,9 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -183,5 +185,19 @@ public class GitProctor extends FileBasedProctorStore {
             ));
         }
         return versions;
+    }
+
+    public void checkoutBranch(String branchName) {
+        try {
+            git.branchCreate()
+                    .setName(branchName)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                    .setStartPoint("origin/" + branchName)
+                    .setForce(true)
+                    .call();
+            git.checkout().setName(branchName).call();
+        } catch (GitAPIException e) {
+            LOGGER.error("Unable to create/checkout branch " + branchName);
+        }
     }
 }
