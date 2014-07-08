@@ -216,7 +216,7 @@ public class GitProctorCore implements FileBasedPersisterCore {
             walk.dispose();
             return new TestVersionResult(
                     tests,
-                    new Date(headTree.getCommitTime()),
+                    new Date(Long.valueOf(headTree.getCommitTime()) * 1000 /* convert seconds to milliseconds */),
                     headTree.getAuthorIdent().toExternalString(),
                     headTree.toObjectId().getName(),
                     headTree.getFullMessage()
