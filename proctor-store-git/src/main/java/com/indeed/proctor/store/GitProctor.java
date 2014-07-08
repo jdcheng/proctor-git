@@ -180,7 +180,7 @@ public class GitProctor extends FileBasedProctorStore {
             versions.add(new Revision(
                 commit.getName(),
                 commit.getAuthorIdent().toExternalString(),
-                new Date(commit.getCommitTime()),
+                new Date(Long.valueOf(commit.getCommitTime()) * 1000 /* convert seconds to milliseconds */),
                 commit.getFullMessage()
             ));
         }
