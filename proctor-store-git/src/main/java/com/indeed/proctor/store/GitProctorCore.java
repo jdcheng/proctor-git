@@ -157,11 +157,6 @@ public class GitProctorCore implements FileBasedPersisterCore {
                                      String comment,
                                      String previousVersion,
                                      FileBasedProctorStore.ProctorUpdater updater) throws StoreException.TestUpdateException {
-        System.out.println("tempDir name: " + tempDir.getName());
-        System.out.println("tempDir path: " + tempDir.getAbsolutePath());
-        System.out.println("username: " + username);
-        System.out.println("comment: " + comment);
-
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
 
         try {
@@ -182,13 +177,10 @@ public class GitProctorCore implements FileBasedPersisterCore {
     @Override
     public TestVersionResult determineVersions(final String fetchRevision) throws StoreException.ReadException {
         try {
-            System.out.println("determineVersions start");
             final RevWalk walk = new RevWalk(git.getRepository());
             final ObjectId commitId = ObjectId.fromString(fetchRevision);
             final RevCommit headTree = walk.parseCommit(commitId);
             final RevTree tree = headTree.getTree();
-            System.out.println("Having tree: " + tree);
-
 
             // now use a TreeWalk to iterate over all files in the Tree recursively
             // you can set Filters to narrow down the results if needed
