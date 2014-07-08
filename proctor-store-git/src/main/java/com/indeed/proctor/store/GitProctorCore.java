@@ -49,14 +49,9 @@ public class GitProctorCore implements FileBasedPersisterCore {
      * @param
      */
     public GitProctorCore(final String gitUrl, final String username, final String password, final File tempDir) {
-        /*
-         * Eventually, make a temp dir, clone the github repo, then delete temp dir when done
-         */
-        //String localPath = "/Users/jcheng/Documents/git/abcabctest"; // change to tempDir
         File localPath = tempDir;
         this.gitUrl = gitUrl;
         this.tempDir = tempDir;
-        //this.gitUrl = "http://github.wvrgroup.internal/jcheng/git-proctor-test-definitions.git";
 
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
 
@@ -69,12 +64,12 @@ public class GitProctorCore implements FileBasedPersisterCore {
                     .setProgressMonitor(new TextProgressMonitor())
                     .setCredentialsProvider(user)
                     .call();
-/*
+
             git.fetch()
                     .setProgressMonitor(new TextProgressMonitor())
                     .setCredentialsProvider(user)
                     .call();
-*/
+
             // now open the created repository
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
             repo = builder.setGitDir(new File(localPath, ".git"))
@@ -209,10 +204,8 @@ public class GitProctorCore implements FileBasedPersisterCore {
                 // final RevTree revTree = walk.lookupTree(id);
 
                 final String path = treeWalk.getPathString();
-                System.out.println("determineVersions path var - " + path);
                 final String[] pieces = path.split("/");
                 final String testname = pieces[pieces.length - 2]; // tree / parent directory name
-                System.out.println("determineVersions testname var - " + testname);
 
                 // testname, blobid pair
                 // note this is the blobid hash - not a commit hash
