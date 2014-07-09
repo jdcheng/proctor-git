@@ -159,16 +159,19 @@ public class GitProctorCore implements FileBasedPersisterCore {
                                      FileBasedProctorStore.ProctorUpdater updater) throws StoreException.TestUpdateException {
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
 
+        final FileBasedProctorStore.RcsClient rcsClient = new GitProctorCore.GitRcsClient(git);
+        final boolean thingsChanged;
         try {
-            final FileBasedProctorStore.RcsClient rcsClient = new GitProctorCore.GitRcsClient(git);
-            final boolean thingsChanged = updater.doInWorkingDirectory(rcsClient, tempDir);
-
+            thingsChanged = updater.doInWorkingDirectory(rcsClient, tempDir);
             if (thingsChanged) {
                 git.commit().setMessage(comment).call();
                 git.push().setCredentialsProvider(user).call();
             }
-        } catch (Exception e) {
-            System.out.println("error while messing with rcsClient " + e);
+        } catch (final GitAPIException e) {
+            System.out.println("Could not commit/push changes - check username/password");
+            throw new StoreException.TestUpdateException("Unable to commit/push changes", e);
+        } catch (final Exception e) {
+            throw new StoreException.TestUpdateException("Unable to perform operation", e);
         }
     }
 
