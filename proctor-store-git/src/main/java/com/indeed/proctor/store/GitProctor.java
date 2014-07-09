@@ -2,7 +2,9 @@ package com.indeed.proctor.store;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.indeed.proctor.common.model.TestMatrixVersion;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -16,6 +18,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -47,11 +50,11 @@ public class GitProctor extends FileBasedProctorStore {
         this.git = core.getGit();
     }
 
-    /*
     public static void main(String args[]) throws IOException {
         final String gitUrl = System.console().readLine("git url: ");
         final String gituser = System.console().readLine("user: ");
         final String password = new String(System.console().readPassword("password: "));
+        final int num_revisions = Integer.parseInt(System.console().readLine("number of histories: "));
         
         final File tempDir = Files.createTempDir();
         try {
@@ -73,7 +76,6 @@ public class GitProctor extends FileBasedProctorStore {
             FileUtils.deleteDirectory(tempDir);
         }
     }
-    */
 
     @Override
     public void verifySetup() throws StoreException {
@@ -98,11 +100,11 @@ public class GitProctor extends FileBasedProctorStore {
 
     @Override
     public boolean cleanUserWorkspace(String username) {
-        System.out.println("can't cleanUserWorkspace - not implemented");
+        System.out.println("Could not cleanUserWorkspace - not implemented");
         throw new UnsupportedOperationException("Not implemented"); //TODO
     }
 
-    // TODO check this works as intended
+    // TODO 7/9/14 check that this works as intended
     @Override
     public String getLatestVersion() throws StoreException {
         try {
@@ -193,7 +195,7 @@ public class GitProctor extends FileBasedProctorStore {
                     .call();
             git.checkout().setName(branchName).call();
         } catch (GitAPIException e) {
-            LOGGER.error("Unable to create/checkout branch " + branchName);
+            LOGGER.error("Unable to create/checkout branch " + branchName, e);
         }
     }
 }
