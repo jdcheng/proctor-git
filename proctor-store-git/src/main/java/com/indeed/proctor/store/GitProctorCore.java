@@ -43,18 +43,17 @@ public class GitProctorCore implements FileBasedPersisterCore {
      * @param
      */
     public GitProctorCore(final String gitUrl, final String username, final String password, final File tempDir) {
-        File localPath = tempDir;
         this.gitUrl = gitUrl;
         this.tempDir = tempDir;
         this.refName = Constants.HEAD;
 
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
 
-        System.out.println("Cloning from " + gitUrl + " to " + localPath);
+        System.out.println("Cloning from " + gitUrl + " to " + tempDir);
         try {
             git = Git.cloneRepository()
                     .setURI(gitUrl)
-                    .setDirectory(localPath)
+                    .setDirectory(tempDir)
                     .setProgressMonitor(new TextProgressMonitor())
                     .setCredentialsProvider(user)
                     .call();
