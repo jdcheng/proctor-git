@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -34,12 +35,11 @@ import com.indeed.proctor.common.Serializers;
 
 public class GitProctorCore implements FileBasedPersisterCore {
     private static final Logger LOGGER = Logger.getLogger(GitProctorCore.class);
-    private static final String DIRECTORY_IDENTIFIER = ".git";
 
-    private Git git; //TODO should be final
-    private final String gitUrl;
-    private Repository repo; //TODO should be final
+    private Git git;
     private final File tempDir;
+    private final String gitUrl;
+    private final String refName;
 
     /**
      * @param gitUrl
@@ -52,33 +52,29 @@ public class GitProctorCore implements FileBasedPersisterCore {
         File localPath = tempDir;
         this.gitUrl = gitUrl;
         this.tempDir = tempDir;
+        this.refName = Constants.HEAD;
 
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
 
+        System.out.println("Cloning from " + gitUrl + " to " + localPath);
         try {
-            // then clone
-            System.out.println("Cloning from " + gitUrl + " to " + localPath);
             git = Git.cloneRepository()
                     .setURI(gitUrl)
                     .setDirectory(localPath)
                     .setProgressMonitor(new TextProgressMonitor())
                     .setCredentialsProvider(user)
                     .call();
+        } catch (GitAPIException e) {
+            LOGGER.error("Unable to clone git repository at " + gitUrl);
+        }
 
+        try {
             git.fetch()
                     .setProgressMonitor(new TextProgressMonitor())
                     .setCredentialsProvider(user)
                     .call();
-
-            // now open the created repository
-            FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            repo = builder.setGitDir(new File(localPath, ".git"))
-                    .readEnvironment() // scan environment GIT_* variables
-                    .findGitDir() // scan up the file system tree
-                    .build();
-        } catch (Exception e) {
-            System.out.println("error while cloning/opening repo");
-            e.printStackTrace();
+        } catch (GitAPIException e) {
+            LOGGER.error("Unable to fetch from " + gitUrl);
         }
     }
 
@@ -225,8 +221,11 @@ public class GitProctorCore implements FileBasedPersisterCore {
     }
 
     String getRefName() {
-        return Constants.HEAD;
-        //return refName; //TODO
+        return refName;
+    }
+
+    String getGitUrl() {
+        return gitUrl;
     }
 
     @Override
@@ -234,7 +233,6 @@ public class GitProctorCore implements FileBasedPersisterCore {
         // Is this ThreadSafe ?
         git.getRepository().close();
     }
-
 
     @Override
     public String getAddTestRevision() {
