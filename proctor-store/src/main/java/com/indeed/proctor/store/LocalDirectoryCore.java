@@ -74,6 +74,11 @@ public class LocalDirectoryCore implements FileBasedPersisterCore {
         public void delete(File testDefinitionDirectory) throws Exception {
             testDefinitionDirectory.delete();
         }
+
+        @Override
+        public String getRevisionControlType() {
+            return null;
+        }
     }
 
 

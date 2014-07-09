@@ -149,6 +149,11 @@ public class GitProctorCore implements FileBasedPersisterCore {
                         + "/" + file.getName()).call();
             }
         }
+
+        @Override
+        public String getRevisionControlType() {
+            return "git";
+        }
     }
 
     @Override

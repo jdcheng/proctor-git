@@ -175,7 +175,7 @@ public abstract class FileBasedProctorStore implements ProctorStore {
     protected final <T> boolean updateThing(final FileBasedProctorStore.RcsClient rcsClient, final File file, final T thing) throws Exception {
         final boolean thingExisted = file.exists();
         final boolean thingChanged = FileBasedProctorStore.writeIfChanged(objectMapper, file, thing);
-        if (!thingExisted) {
+        if (!thingExisted || rcsClient.getRevisionControlType().equals("git")) {
             rcsClient.add(file);
         }
         return thingChanged;
@@ -256,6 +256,8 @@ public abstract class FileBasedProctorStore implements ProctorStore {
         void add(File file) throws Exception;
 
         void delete(File testDefinitionDirectory) throws Exception;
+
+        String getRevisionControlType();
     }
 
 }

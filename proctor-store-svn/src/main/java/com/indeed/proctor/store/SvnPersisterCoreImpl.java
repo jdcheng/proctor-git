@@ -267,6 +267,11 @@ public class SvnPersisterCoreImpl implements SvnPersisterCore, Closeable {
         public void delete(File testDefinitionDirectory) throws Exception {
             wcClient.doDelete(testDefinitionDirectory, true, false);
         }
+
+        @Override
+        public String getRevisionControlType() {
+            return "svn";
+        }
     }
 
     @Override
