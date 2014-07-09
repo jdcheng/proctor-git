@@ -104,7 +104,6 @@ public class GitProctorCore implements FileBasedPersisterCore {
                 treeWalk2.setRecursive(true);
                 //final String joinedPath = "matrices" + "/" + Joiner.on("/").join(path);
                 final String joinedPath = Joiner.on("/").join(path);
-                System.out.println("getFileContents joinedPath var - " + joinedPath);
                 treeWalk2.setFilter(PathFilter.create(joinedPath));
 
                 if (!treeWalk2.next()) {
@@ -166,8 +165,6 @@ public class GitProctorCore implements FileBasedPersisterCore {
 
         try {
             final FileBasedProctorStore.RcsClient rcsClient = new GitProctorCore.GitRcsClient(git);
-            System.out.println(git.getRepository().getDirectory().getAbsolutePath());
-            System.out.println(git.getRepository().getDirectory().getName());
             final boolean thingsChanged = updater.doInWorkingDirectory(rcsClient, tempDir);
 
             if (thingsChanged) {
