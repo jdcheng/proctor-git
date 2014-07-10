@@ -40,7 +40,7 @@ public class GitProctor extends FileBasedProctorStore {
 
     public GitProctor(final String gitPath,
                       final String username,
-                      final String password) throws IOException {
+                      final String password) {
         this(new GitProctorCore(gitPath, username, password, Files.createTempDir()));
     }
 
