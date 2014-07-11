@@ -33,24 +33,35 @@ public class GitLocalProctorBuilder extends ProctorBuilder {
 
     private static class GitLocalProctorBuilderArgs extends ProctorBuilderArgs {
         private String inputGitUrl;
+        private String branchName;
 
         private GitLocalProctorBuilderArgs() {
             options.addOption(OptionBuilder.hasArg(true)
                     .isRequired()
                     .withLongOpt("input")
-                    .withArgName("input directory")
-                    .withDescription("The directory to read from.")
+                    .withArgName("input git url")
+                    .withDescription("The git url to read from.")
                     .create("i"));
+            options.addOption(OptionBuilder.hasArg(true)
+                    .withLongOpt("branch")
+                    .withArgName("git branch")
+                    .withDescription("The git branch to checkout.")
+                    .create("b"));
         }
 
         @Override
         protected void extract(CommandLine results)  {
             super.extract(results);
             this.inputGitUrl = results.getOptionValue("input");
+            this.branchName = results.getOptionValue("branch");
         }
 
         public String getInputGitUrl() {
             return inputGitUrl;
+        }
+
+        public String getBranchName() {
+            return branchName;
         }
     }
 
@@ -60,7 +71,7 @@ public class GitLocalProctorBuilder extends ProctorBuilder {
 
         try {
             new GitLocalProctorBuilder(
-                    new GitProctor(arguments.getInputGitUrl(), "", ""),
+                    new GitProctor(arguments.getInputGitUrl(), "", "", arguments.getBranchName()),
                     "-".equals(arguments.getOutputdir()) ?
                             new PrintWriter(System.out) :
                             new FileWriter(new File(arguments.getOutputdir(), arguments.getFilename())),

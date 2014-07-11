@@ -44,6 +44,14 @@ public class GitProctor extends FileBasedProctorStore {
         this(new GitProctorCore(gitPath, username, password, Files.createTempDir()));
     }
 
+    public GitProctor(final String gitPath,
+                      final String username,
+                      final String password,
+                      final String branch) {
+        this(new GitProctorCore(gitPath, username, password, Files.createTempDir()));
+        checkoutBranch(branch);
+    }
+
     public GitProctor(final GitProctorCore core) {
         super(core);
         this.git = core.getGit();
