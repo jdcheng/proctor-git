@@ -10,6 +10,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.log4j.Logger;
 
+import com.google.common.io.Files;
 import com.indeed.proctor.common.IncompatibleTestMatrixException;
 import com.indeed.proctor.store.GitProctor;
 import com.indeed.proctor.store.ProctorReader;

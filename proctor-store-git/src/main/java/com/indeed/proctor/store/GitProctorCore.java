@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonProcessingException;
@@ -24,6 +25,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.indeed.proctor.common.Serializers;
@@ -32,10 +34,14 @@ public class GitProctorCore implements FileBasedPersisterCore {
     private static final Logger LOGGER = Logger.getLogger(GitProctorCore.class);
 
     private Git git;
-    private final File tempDir;
     private final String gitUrl;
     private final String refName;
-    //private final GitWorkspaceProvider workspaceProvider;
+    private final GitWorkspaceProvider workspaceProvider;
+
+    public GitProctorCore(final String gitUrl, final String username, final String password,
+            final File tempDir) {
+        this(gitUrl, username, password, new GitWorkspaceProviderImpl(tempDir, TimeUnit.DAYS.toMillis(1)));
+    }
 
     /**
      * @param gitUrl
@@ -43,28 +49,39 @@ public class GitProctorCore implements FileBasedPersisterCore {
      * @param password
      * @param
      */
-    public GitProctorCore(final String gitUrl, final String username, final String password) {
+    public GitProctorCore(final String gitUrl, final String username, final String password,
+            final GitWorkspaceProviderImpl workspaceProvider) {
         this.gitUrl = gitUrl;
-        //this.tempDir = tempDir;
         this.refName = Constants.HEAD;
-        //this.workspaceProvider = new GitWorkspaceProviderImpl(tempDir, TimeUnit.DAYS.toMillis(1));
-/*
-        File workspaceDirectory = new File(System.getProperty("java.io.tmpdir") + "/");
-        File tempDirectory = Files.createTempDir();
-        if (!workspaceDirectory.exists())
-            File workspaceDirectory = File.createTempFile("git", "proctor-temp-workspace");
-        Files.move(workingDirectory, );
-*/
-        this.tempDir = Files.createTempDir();
+        this.workspaceProvider = Preconditions
+                .checkNotNull(workspaceProvider, "GitWorkspaceProvider should not be null");
+
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
+        File workingDir = workspaceProvider.getRootDirectory();
+        File gitDirectory = new File(workingDir, ".git");
 
         try {
-            git = Git.cloneRepository()
-                    .setURI(gitUrl)
-                    .setDirectory(tempDir)
-                    .setProgressMonitor(new TextProgressMonitor())
-                    .setCredentialsProvider(user)
-                    .call();
+            if (gitDirectory.exists()) {
+                try {
+                    git = Git.open(workingDir);
+                    git.pull().setCredentialsProvider(user).call();
+                } catch (Exception e) {
+                    workspaceProvider.cleanWorkingDirectory();
+                    git = Git.cloneRepository()
+                            .setURI(gitUrl)
+                            .setDirectory(workingDir)
+                            .setProgressMonitor(new TextProgressMonitor())
+                            .setCredentialsProvider(user)
+                            .call();
+                }
+            } else {
+                git = Git.cloneRepository()
+                        .setURI(gitUrl)
+                        .setDirectory(workingDir)
+                        .setProgressMonitor(new TextProgressMonitor())
+                        .setCredentialsProvider(user)
+                        .call();
+            }
         } catch (GitAPIException e) {
             LOGGER.error("Unable to clone git repository at " + gitUrl);
         }
@@ -136,7 +153,7 @@ public class GitProctorCore implements FileBasedPersisterCore {
      * @return
      */
     public GitDirectoryRefresher createRefresherTask(String username, String password) {
-        return new GitDirectoryRefresher(tempDir, git, username, password);
+        return new GitDirectoryRefresher(workspaceProvider.getRootDirectory(), git, username, password);
     }
 
     static class GitRcsClient implements FileBasedProctorStore.RcsClient {
@@ -175,9 +192,10 @@ public class GitProctorCore implements FileBasedPersisterCore {
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
 
         final FileBasedProctorStore.RcsClient rcsClient = new GitProctorCore.GitRcsClient(git);
+        final File workingDir = workspaceProvider.getRootDirectory();
         final boolean thingsChanged;
         try {
-            thingsChanged = updater.doInWorkingDirectory(rcsClient, tempDir);
+            thingsChanged = updater.doInWorkingDirectory(rcsClient, workingDir);
             if (thingsChanged) {
                 git.commit().setMessage(comment).call();
                 git.push().setCredentialsProvider(user).call();
