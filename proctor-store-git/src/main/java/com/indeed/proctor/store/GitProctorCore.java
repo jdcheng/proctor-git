@@ -25,6 +25,7 @@ import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.indeed.proctor.common.Serializers;
 
 public class GitProctorCore implements FileBasedPersisterCore {
@@ -34,22 +35,29 @@ public class GitProctorCore implements FileBasedPersisterCore {
     private final File tempDir;
     private final String gitUrl;
     private final String refName;
+    //private final GitWorkspaceProvider workspaceProvider;
 
     /**
      * @param gitUrl
      * @param username
      * @param password
-     * @param tempDir
      * @param
      */
-    public GitProctorCore(final String gitUrl, final String username, final String password, final File tempDir) {
+    public GitProctorCore(final String gitUrl, final String username, final String password) {
         this.gitUrl = gitUrl;
-        this.tempDir = tempDir;
+        //this.tempDir = tempDir;
         this.refName = Constants.HEAD;
-
+        //this.workspaceProvider = new GitWorkspaceProviderImpl(tempDir, TimeUnit.DAYS.toMillis(1));
+/*
+        File workspaceDirectory = new File(System.getProperty("java.io.tmpdir") + "/");
+        File tempDirectory = Files.createTempDir();
+        if (!workspaceDirectory.exists())
+            File workspaceDirectory = File.createTempFile("git", "proctor-temp-workspace");
+        Files.move(workingDirectory, );
+*/
+        this.tempDir = Files.createTempDir();
         UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);
 
-        System.out.println("Cloning from " + gitUrl + " to " + tempDir);
         try {
             git = Git.cloneRepository()
                     .setURI(gitUrl)
@@ -115,6 +123,20 @@ public class GitProctorCore implements FileBasedPersisterCore {
         ObjectLoader loader = git.getRepository().open(blobId);
         final ObjectMapper mapper = Serializers.lenient();
         return mapper.readValue(loader.getBytes(), c);
+    }
+
+    public boolean cleanUserWorkspace(String username) {
+        //return workspaceProvider.deleteWorkspaceQuietly(username);
+        return false;
+    }
+
+    /**
+     * Creates a background task that can be scheduled to refresh a template directory used to
+     * seed each user workspace during a commit.
+     * @return
+     */
+    public GitDirectoryRefresher createRefresherTask(String username, String password) {
+        return new GitDirectoryRefresher(tempDir, git, username, password);
     }
 
     static class GitRcsClient implements FileBasedProctorStore.RcsClient {

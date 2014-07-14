@@ -41,14 +41,14 @@ public class GitProctor extends FileBasedProctorStore {
     public GitProctor(final String gitPath,
                       final String username,
                       final String password) {
-        this(new GitProctorCore(gitPath, username, password, Files.createTempDir()));
+        this(new GitProctorCore(gitPath, username, password));
     }
 
     public GitProctor(final String gitPath,
                       final String username,
                       final String password,
                       final String branch) {
-        this(new GitProctorCore(gitPath, username, password, Files.createTempDir()));
+        this(new GitProctorCore(gitPath, username, password));
         checkoutBranch(branch);
     }
 
@@ -107,8 +107,7 @@ public class GitProctor extends FileBasedProctorStore {
 
     @Override
     public boolean cleanUserWorkspace(String username) {
-        System.out.println("Could not cleanUserWorkspace - not implemented");
-        throw new UnsupportedOperationException("Not implemented"); //TODO
+        return getGitCore().cleanUserWorkspace(username);
     }
 
     // TODO 7/9/14 check that this works as intended
