@@ -201,7 +201,6 @@ public class GitProctorCore implements FileBasedPersisterCore {
                 git.push().setCredentialsProvider(user).call();
             }
         } catch (final GitAPIException e) {
-            System.out.println("Could not commit/push changes - check username/password");
             throw new StoreException.TestUpdateException("Unable to commit/push changes", e);
         } catch (final Exception e) {
             throw new StoreException.TestUpdateException("Unable to perform operation", e);
