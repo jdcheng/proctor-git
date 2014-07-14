@@ -27,7 +27,6 @@ import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import com.indeed.proctor.common.Serializers;
 
 public class GitProctorCore implements FileBasedPersisterCore {
@@ -142,8 +141,8 @@ public class GitProctorCore implements FileBasedPersisterCore {
         return mapper.readValue(loader.getBytes(), c);
     }
 
-    public boolean cleanUserWorkspace(String username) {
-        //return workspaceProvider.deleteWorkspaceQuietly(username);
+    public boolean cleanUserWorkspace(String user) {
+        workspaceProvider.deleteWorkspaceQuietly(user);
         return false;
     }
 

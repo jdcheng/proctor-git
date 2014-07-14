@@ -100,6 +100,27 @@ public class GitWorkspaceProviderImpl extends TimerTask implements GitWorkspaceP
         }
     }
 
+    @Override
+    public boolean deleteWorkspaceQuietly(final String user) {
+        if (rootDirectory.exists()) {
+            return deleteUserDirectoryQuietly(user, rootDirectory);
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Workspace not found for " + user);
+            }
+            return true;
+        }
+    }
+
+    private static boolean deleteUserDirectoryQuietly(final String user, final File directory) {
+        LOGGER.info("Deleting user directory " + directory + " for user: " + user);
+        final boolean success = FileUtils.deleteQuietly(directory);
+        if (!success) {
+            LOGGER.error("Failed to delete user directory " + directory + " for user: " + user);
+        }
+        return success;
+    }
+
     public boolean cleanWorkingDirectory() {
         try {
             FileUtils.cleanDirectory(rootDirectory);

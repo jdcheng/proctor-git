@@ -113,16 +113,16 @@ public class GitProctor extends FileBasedProctorStore {
 
     @Override
     public boolean cleanUserWorkspace(String username) {
-        return getGitCore().cleanUserWorkspace(username);
+        //TODO: Currently deletes the temp directories which breaks the webapp
+        //      Not sure what the intent of this function is
+        //return getGitCore().cleanUserWorkspace(username);
+        return false;
     }
 
-    // TODO 7/9/14 check that this works as intended
     @Override
     public String getLatestVersion() throws StoreException {
         try {
             final Ref branch = git.getRepository().getRef(getGitCore().getRefName());
-            // final RevWalk walk = new RevWalk(git.getRepository());
-            // final RevCommit headCommit = walk.parseCommit(branch.getObjectId());
             return branch.getObjectId().name();
         } catch (IOException e) {
             throw new StoreException(e);
