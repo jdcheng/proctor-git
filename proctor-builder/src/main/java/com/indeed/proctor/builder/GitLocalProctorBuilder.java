@@ -35,6 +35,8 @@ public class GitLocalProctorBuilder extends ProctorBuilder {
     private static class GitLocalProctorBuilderArgs extends ProctorBuilderArgs {
         private String inputGitUrl;
         private String branchName;
+        private String username = "";
+        private String password = "";
 
         private GitLocalProctorBuilderArgs() {
             options.addOption(OptionBuilder.hasArg(true)
@@ -48,6 +50,16 @@ public class GitLocalProctorBuilder extends ProctorBuilder {
                     .withArgName("git branch")
                     .withDescription("The git branch to checkout.")
                     .create("b"));
+            options.addOption(OptionBuilder.hasArg(true)
+                    .withLongOpt("username")
+                    .withArgName("git username")
+                    .withDescription("The git username.")
+                    .create("u"));
+            options.addOption(OptionBuilder.hasArg(true)
+                    .withLongOpt("password")
+                    .withArgName("git password")
+                    .withDescription("The git password.")
+                    .create("p"));
         }
 
         @Override
@@ -56,6 +68,12 @@ public class GitLocalProctorBuilder extends ProctorBuilder {
             this.inputGitUrl = results.getOptionValue("input");
             if (results.hasOption("branch")) {
                 this.branchName = results.getOptionValue("branch");
+            }
+            if (results.hasOption("username")) {
+                this.username = results.getOptionValue("username");
+            }
+            if (results.hasOption("password")) {
+                this.password = results.getOptionValue("password");
             }
         }
 
@@ -66,6 +84,14 @@ public class GitLocalProctorBuilder extends ProctorBuilder {
         public String getBranchName() {
             return branchName;
         }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
     }
 
     public static void main(final String[] args) throws IOException, StoreException, IncompatibleTestMatrixException {
@@ -73,7 +99,7 @@ public class GitLocalProctorBuilder extends ProctorBuilder {
         arguments.parse(args);
 
         try {
-            GitProctor proctor = new GitProctor(arguments.getInputGitUrl(), "", "");
+            GitProctor proctor = new GitProctor(arguments.getInputGitUrl(), arguments.getUsername(), arguments.getPassword());
             if (arguments.getBranchName() != null && !arguments.getBranchName().isEmpty()) {
                 proctor.checkoutBranch(arguments.getBranchName());
             }
